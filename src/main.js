@@ -10,7 +10,6 @@ import Notification from './components/Notification.vue';
 
 
 const app = createApp(App)
-app.component('Notification', Notification)
 
 app.use(router)
 

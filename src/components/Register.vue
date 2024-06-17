@@ -108,11 +108,11 @@
             class="p-6 space-y-4 md:space-y-6 sm:p-8 text-center bg-[#F5F7F6] rounded-[32px] dark:border w-full mt-6"
           >
             <p class="text-sm font-light text-gray-500">
-              Already a member? <br /><a
-                routerLink="/login"
-                class="font-bold text-black hover:underline"
-                >Log in</a
-              >
+                Already a member? <br /><router-link class="font-bold text-black hover:underline" to="/login">Login</router-link>
+                    
+                   
+                
+                
             </p>
           </div>
         </div>
@@ -123,6 +123,9 @@
 
 <script>
 import axios from "axios";
+import { defineComponent } from 'vue';
+import notificationsService from '../notificationService';
+
 
 export default {
   data() {
@@ -143,17 +146,20 @@ export default {
           "http://127.0.0.1:8000/api/auth/register",
           this.form
         );
-        
-        alert("User registered successfully");
+        notificationsService.show([response.data.message],"success" );
         this.form = {
           first_name: "",
           last_name: "",
           email: "",
           password: "",
         };
+    
       } catch (error) {
         if (error.response) {
+            
+
           this.errors = error.response.data;
+          notificationsService.show([error.response.data.error],"error" );
         }
       }
     },
