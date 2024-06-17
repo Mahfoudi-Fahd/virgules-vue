@@ -1,42 +1,41 @@
 <template>
-    <div v-if="visible" :class="['notification', type]" @click="hideNotification">
-      <span>{{ message }}</span>
+    <div v-if="messages.length" :class="['notification', type]">
+      <ul>
+        <button v-on:click="closeNotification()" v-for="(message, index) in messages" :key="index">{{ message }}</button>
+      </ul>
     </div>
   </template>
   
   <script>
+  import notificationsService from '../notificationService';
+  
   export default {
-    props: {
-      message: {
-        type: String,
-        required: true
-      },
-      type: {
-        type: String,
-        default: 'success' // Can be 'success' or 'error'
-      }
-    },
     data() {
       return {
-        visible: false
+        messages: [],
+        type: '',
       };
     },
-    methods: {
-      showNotification() {
-        this.visible = true;
-        setTimeout(() => {
-          this.visible = false;
-        }, 3000); // Auto-hide after 3 seconds
-      },
-      hideNotification() {
-        this.visible = false;
+    created() {
+      this.subscription = notificationsService.notification$.subscribe((notification) => {
+        if (notification) {
+          this.messages = notification.messages;
+          this.type = notification.type;
+          setTimeout(() => this.closeNotification(), 3500);
+        }
+      });
+    },
+    beforeDestroy() {
+      if (this.subscription) {
+        this.subscription.unsubscribe();
       }
     },
-    watch: {
-      message() {
-        this.showNotification();
-      }
-    }
+    methods: {
+      closeNotification() {
+        this.messages = [];
+        this.type = '';
+      },
+    },
   };
   </script>
   
@@ -45,17 +44,18 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    padding: 10px 20px;
-    border-radius: 4px;
-    color: #fff;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
   }
   .notification.success {
-    background-color: #4caf50;
+    background-color: green;
+  }
+  .notification.warning {
+    background-color: orange;
   }
   .notification.error {
-    background-color: #f44336;
+    background-color: red;
   }
   </style>
   
